@@ -797,7 +797,8 @@ abstract class EMongoDocument extends EMongoEmbeddedDocument
 		Yii::trace(get_class($this).'.refresh()','ext.MongoDb.EMongoDocument');
 		if(!$this->getIsNewRecord() && $this->getCollection()->count(array('_id'=>$this->_id))==1)
 		{
-			$this->setAttributes($this->getCollection()->find(array('_id'=>$this->_id)), false);
+		    $attributes = $this->getCollection()->findOne(array('_id'=>$this->_id));
+			$this->setAttributes($attributes, false);
 			return true;
 		}
 		else
