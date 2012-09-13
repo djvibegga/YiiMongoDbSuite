@@ -64,6 +64,14 @@ class EMongoCriteria extends CComponent
 		'=='			=> '$$eq',
 		'where'			=> '$where'
 	);
+	
+	/**
+	 * Supported logical operators list
+	 * @var array
+	 */
+	public static $logicalOperators = array(
+	    '$and', '$or', '$nor',
+	);
 
 	const SORT_ASC		= 1;
 	const SORT_DESC		= -1;
@@ -146,10 +154,14 @@ class EMongoCriteria extends CComponent
 	 * - Limit and offet will be overriden
 	 * - Select fields list will be merged
 	 * - Sort fields list will be merged
+	 * 
 	 * @param array|EMongoCriteria $criteria
+	 * @param string               $operator merge operator. Null means $and. You
+	 * can use $or, $nor, etc.
+	 * 
 	 * @since v1.0
 	 */
-	public function mergeWith($criteria)
+	public function mergeWith($criteria, $operator = null)
 	{
 		if(is_array($criteria))
 			$criteria = new EMongoCriteria($criteria);
@@ -158,27 +170,38 @@ class EMongoCriteria extends CComponent
 
 		$opTable = array_values(self::$operators);
 
-		foreach($criteria->_conditions as $fieldName=>$conds)
-		{
-			if(
-				is_array($conds) &&
-				count(array_diff(array_keys($conds), $opTable)) == 0
-			)
-			{
-				if(isset($this->_conditions[$fieldName]) && is_array($this->_conditions[$fieldName]))
-				{
-					foreach($this->_conditions[$fieldName] as $operator => $value)
-						if(!in_array($operator, $opTable))
-							unset($this->_conditions[$fieldName][$operator]);
-				}
-				else
-					$this->_conditions[$fieldName] = array();
-
-				foreach($conds as $operator => $value)
-					$this->_conditions[$fieldName][$operator] = $value;
-			}
-			else
-				$this->_conditions[$fieldName] = $conds;
+		if ($operator !== null && in_array($operator, self::$logicalOperators)) {
+		    if (empty($this->_conditions)) {
+		        $this->_conditions = $criteria->_conditions;
+		    } else if (!empty($criteria->_conditions)) {
+		        $this->_conditions = array($operator => array(
+		            $this->_conditions,
+		            $criteria->_conditions,
+		        ));
+		    }
+		} else {
+    		foreach($criteria->_conditions as $fieldName=>$conds)
+    		{
+    			if(
+    				is_array($conds) &&
+    				count(array_diff(array_keys($conds), $opTable)) == 0
+    			)
+    			{
+    				if(isset($this->_conditions[$fieldName]) && is_array($this->_conditions[$fieldName]))
+    				{
+    					foreach($this->_conditions[$fieldName] as $operator => $value)
+    						if(!in_array($operator, $opTable))
+    							unset($this->_conditions[$fieldName][$operator]);
+    				}
+    				else
+    					$this->_conditions[$fieldName] = array();
+    
+    				foreach($conds as $operator => $value)
+    					$this->_conditions[$fieldName][$operator] = $value;
+    			}
+    			else
+    				$this->_conditions[$fieldName] = $conds;
+    		}
 		}
 
 		if(!empty($criteria->_limit))
