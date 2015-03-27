@@ -419,7 +419,7 @@ abstract class EMongoDocument extends EMongoEmbeddedDocument
 	/**
 	 * @since v1.1
 	 */
-	private function ensureIndexes()
+	public function ensureIndexes()
 	{
 		$indexNames = array_keys(self::$_indexes[$this->getCollectionName()]);
 		foreach($this->indexes() as $name=>$index)
