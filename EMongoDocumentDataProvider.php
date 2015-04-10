@@ -38,7 +38,7 @@ class EMongoDocumentDataProvider extends CDataProvider
 	 * will return a list of objects of this class.
 	 * @since v1.0
 	 */
-	public $modelClass;
+	private $_modelClass;
 
 	/**
 	 * @var EMongoRecord the AR finder instance (e.g. <code>Post::model()</code>).
@@ -46,7 +46,7 @@ class EMongoDocumentDataProvider extends CDataProvider
 	 * to the constructor.
 	 * @since v1.0
 	 */
-	public $model;
+	private $_model;
 
 	private $_criteria;
 
@@ -155,7 +155,28 @@ class EMongoDocumentDataProvider extends CDataProvider
 		}
 		return $keys;
 	}
+	
 
+	/**
+	 * Get model
+	 * 
+	 * @return EMongoRecord
+	 */
+	public function getModel()
+	{
+	    return $this->_model;
+	}
+	
+    /**
+     * Get model class
+     * 
+     * @return string
+     */
+	public function getModelClass()
+	{
+	    return $this->_modelClass;
+	}
+	
 	/**
 	 * Calculates the total number of data items.
 	 * @return integer the total number of data items.
